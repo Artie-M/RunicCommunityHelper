@@ -1,4 +1,5 @@
-﻿**/.dockerignore
+﻿google-key.json
+**/.dockerignore
 **/.env
 **/.git
 **/.gitignore
