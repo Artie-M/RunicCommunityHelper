@@ -36,7 +36,7 @@ public class AuthEndpointManager
         var validator = scope.ServiceProvider.GetRequiredService<IUserValidator>();
         var db = scope.ServiceProvider.GetRequiredService<ICoreContext>();
 
-        var user = await validator.ValidateUserAsync(db, loginData.DiscordId, loginData.Password);
+        var user = await validator.ValidateUserAsync(db, loginData.Password, loginData.Username);
 
         if (user == null)
         {
@@ -47,9 +47,8 @@ public class AuthEndpointManager
 
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name, user.DiscordId.ToString()),
-            new(ClaimTypes.Email, user.Email),
-            new(ClaimTypes.Role, user.Role ?? "Default"),
+            new(ClaimTypes.Name, user.Username),
+            new(ClaimTypes.Role, user.Role),
             new("id", user.Id.ToString())
         };
 
@@ -59,4 +58,4 @@ public class AuthEndpointManager
     }
 }
 
-record LoginDto(ulong DiscordId, string Password);
+record LoginDto(string Username, string Password);

@@ -12,12 +12,12 @@ namespace RunicCommunityHelper.Discord.Commands;
 public class GeneralCommands : DiscordModuleBase
 {
     private readonly IServiceProvider _provider;
-    
+
     public GeneralCommands(IServiceProvider provider)
     {
         _provider = provider;
     }
-    
+
     [DefaultPermission(false)]
     [SlashCommand("create-email-link-form", "Отправить сообщение с компонентом для заполнения формы регистрации")]
     public async Task CreateEmailLinkFormAsync([Summary("channel", "Канал отправки сообщения")] IChannel channel)
@@ -37,12 +37,12 @@ public class GeneralCommands : DiscordModuleBase
                                   Нажмите на кнопку, чтобы получить доступ к документам и таблицам.
                                   """)
                 .WithActionRow(new ActionRowBuilder()
-                    .WithButton("Обновить доступ", 
-                        DiscordConst.LinkEmailButton, 
-                        ButtonStyle.Primary, 
+                    .WithButton("Обновить доступ",
+                        DiscordConst.LinkEmailButton,
+                        ButtonStyle.Primary,
                         new Emoji("📬")))
         ]);
-        
+
         await socketChannel.SendMessageAsync(components: componentBuilder.Build());
         await FollowupAsync("Форма создана.", ephemeral: true);
     }
@@ -58,5 +58,11 @@ public class GeneralCommands : DiscordModuleBase
     {
         // проверить, имеет ли почта, указанная в modal.Email доступ к Google-Таблице
         // если не имеет, выдать доступ
+    }
+
+    private async Task<bool> CheckAccess()
+    {
+        
+        return false;
     }
 }

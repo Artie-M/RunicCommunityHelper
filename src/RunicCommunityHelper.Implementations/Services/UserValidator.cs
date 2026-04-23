@@ -12,14 +12,9 @@ namespace RunicCommunityHelper.Implementations.Services;
 
 public class UserValidator : IUserValidator
 {
-    public const string Issuer = "CommunityHelperServer";
-    public const string Audience = "CommunityHelperClient";
-    private readonly string _key;
-
-    public UserValidator()
-    {
-        _key = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "mysupersecret_secretsecretsecretkey!123";
-    }
+    public const string Issuer = "RunicCommunityHelper";
+    public const string Audience = "RunicCommunityHelperClient";
+    private readonly string _key = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "mysupersecret_secretsecretsecretkey!123";
     
     public SymmetricSecurityKey GetSymmetricSecurityKey()
     {
@@ -66,25 +61,25 @@ public class UserValidator : IUserValidator
         }
     }
 
-    public async Task<UserEntity?> PostUserAsync(ICoreContext db, ulong discordId, string password, string email)
+    public async Task<StaffUserEntity?> PostUserAsync(ICoreContext db, string password, string username, string role = "Default")
     {
         var salt = GenerateSalt();
         var hash = ComputeHash(password, salt);
-        var user = new UserEntity
+        var user = new StaffUserEntity
         {
-            Email = email,
-            DiscordId = discordId,
             Salt = salt,
-            Password = hash
+            Password = hash,
+            Username = username,
+            Role = role
         };
-        await db.Users.AddAsync(user);
+        await db.Staff.AddAsync(user);
         await db.SaveChangesAsync();
         return user;
     }
 
-    public async Task<UserEntity?> ValidateUserAsync(ICoreContext db, ulong discordId, string password)
+    public async Task<StaffUserEntity?> ValidateUserAsync(ICoreContext db, string password, string username)
     {
-        var user = await db.Users.FirstOrDefaultAsync(x => x.DiscordId == discordId);
+        var user = await db.Staff.FirstOrDefaultAsync(x => x.Username == username);
 
         if (user == null ||
             user.Password != ComputeHash(password, user.Salt))

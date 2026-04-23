@@ -13,15 +13,18 @@ public class CoreContext : DbContext, ICoreContext
     
     public DbSet<ExceptionEntity> Exceptions => Set<ExceptionEntity>();
     
-    public DbSet<UserEntity> Users => Set<UserEntity>();
+    public DbSet<DiscordUserEntity> DiscordUsers => Set<DiscordUserEntity>();
+    
+    public DbSet<StaffUserEntity> Staff => Set<StaffUserEntity>();
     
     public DbSet<GoogleDocumentEntity> GoogleDocuments => Set<GoogleDocumentEntity>();
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfiguration(new UsersStoreConfiguration());
+        modelBuilder.ApplyConfiguration(new DiscordUsersStoreConfiguration());
         modelBuilder.ApplyConfiguration(new ExceptionStoreConfiguration());
         modelBuilder.ApplyConfiguration(new GoogleDocumentsStoreConfiguration());
+        modelBuilder.ApplyConfiguration(new StaffUsersStoreConfiguration());
         
         base.OnModelCreating(modelBuilder);
     }

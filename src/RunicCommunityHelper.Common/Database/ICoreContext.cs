@@ -8,7 +8,9 @@ public interface ICoreContext
 {
     DbSet<ExceptionEntity> Exceptions { get; }
     
-    DbSet<UserEntity> Users { get; }
+    DbSet<DiscordUserEntity> DiscordUsers { get; }
+    
+    DbSet<StaffUserEntity> Staff { get; }
     
     DbSet<GoogleDocumentEntity> GoogleDocuments { get; }
     

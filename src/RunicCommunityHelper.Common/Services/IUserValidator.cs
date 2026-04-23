@@ -17,7 +17,7 @@ public interface IUserValidator
 
     string ComputeHash(string password, string salt);
     
-    Task<UserEntity?> PostUserAsync(ICoreContext db, ulong discordId, string password, string email);
+    Task<StaffUserEntity?> PostUserAsync(ICoreContext db, string password, string username, string role = "Default");
     
-    Task<UserEntity?> ValidateUserAsync(ICoreContext db, ulong discordId, string password);
+    Task<StaffUserEntity?> ValidateUserAsync(ICoreContext db, string password, string username);
 }
