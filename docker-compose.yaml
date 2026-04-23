@@ -6,6 +6,7 @@
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - JWT_SECRET=${JWT_SECRET}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - DISCORD_TOKEN=${DISCORD_TOKEN}
       - GOOGLE_CREDENTIALS_PATH=/app/google-key.json
     volumes:

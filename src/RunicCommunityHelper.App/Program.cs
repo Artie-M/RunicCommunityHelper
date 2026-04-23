@@ -1,12 +1,8 @@
-using System.Reflection;
-using RunicCommunityHelper.Common;
 using RunicCommunityHelper.Common.Services;
 using RunicCommunityHelper.Common.Database;
 using RunicCommunityHelper.EndpointManagers;
 using RunicCommunityHelper.Implementations;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using RunicCommunityHelper.Discord;
 using Serilog;
 
@@ -40,7 +36,6 @@ app.MapGet("/", async (HttpContext context) =>
 {
     context.Response.ContentType = "text/html; charset=utf-8";
     await context.Response.WriteAsync("Hello World!");
-    //await context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath, "index.html"));
 });
 
 var isDevelopment = app.Environment.IsDevelopment();
@@ -50,6 +45,17 @@ if (isDevelopment)
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ICoreContext>();
     db.Database.EnsureCreated();
+    
+    var admin = await db.Staff.FirstOrDefaultAsync(x => x.Username == "admin");
+
+    if (admin == null)
+    {
+        var validator = scope.ServiceProvider.GetRequiredService<IUserValidator>();
+        await validator.PostUserAsync(db,
+            Environment.GetEnvironmentVariable("ADMIN_PASSWORD") ?? "admin",
+            "admin",
+            "Admin");
+    }
 }
 
 app.Run();
