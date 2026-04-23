@@ -1,0 +1,11 @@
+﻿services:
+  runiccommunityhelper.app:
+    build:
+      context: .
+      dockerfile: src/AutoParkManagement.App/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - JWT_SECRET=${JWT_SECRET}
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+    ports:
+      - "5024:8080"

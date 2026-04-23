@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <RootNamespace>RunicCommunityHelper</RootNamespace>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.26" />
+      <PackageReference Include="Serilog" Version="4.3.1" />
+      <PackageReference Include="Serilog.Extensions.Hosting" Version="10.0.0" />
+      <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\RunicCommunityHelper.Common\RunicCommunityHelper.Common.csproj" />
+      <ProjectReference Include="..\RunicCommunityHelper.Discord\RunicCommunityHelper.Discord.csproj" />
+      <ProjectReference Include="..\RunicCommunityHelper.Implementations\RunicCommunityHelper.Implementations.csproj" />
+    </ItemGroup>
+
+</Project>
