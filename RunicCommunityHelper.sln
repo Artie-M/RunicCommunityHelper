@@ -16,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.env = .env
 		.gitignore = .gitignore
 		README.md = README.md
+		google-key.json = google-key.json
+		.dockerignore = .dockerignore
 	EndProjectSection
 EndProject
 Global
