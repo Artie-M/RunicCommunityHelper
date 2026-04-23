@@ -15,10 +15,13 @@ public class CoreContext : DbContext, ICoreContext
     
     public DbSet<UserEntity> Users => Set<UserEntity>();
     
+    public DbSet<GoogleDocumentEntity> GoogleDocuments => Set<GoogleDocumentEntity>();
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new UsersStoreConfiguration());
         modelBuilder.ApplyConfiguration(new ExceptionStoreConfiguration());
+        modelBuilder.ApplyConfiguration(new GoogleDocumentsStoreConfiguration());
         
         base.OnModelCreating(modelBuilder);
     }

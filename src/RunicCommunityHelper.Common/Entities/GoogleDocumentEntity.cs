@@ -10,5 +10,5 @@ public class GoogleDocumentEntity
     
     [MaxLength(128)] public required string FileId { get; set; }
     
-    [MaxLength(64)] public ulong RequiredRole { get; set; }
+    public ulong RequiredRole { get; set; }
 }

@@ -10,6 +10,8 @@ public interface ICoreContext
     
     DbSet<UserEntity> Users { get; }
     
+    DbSet<GoogleDocumentEntity> GoogleDocuments { get; }
+    
     DatabaseFacade Database { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
