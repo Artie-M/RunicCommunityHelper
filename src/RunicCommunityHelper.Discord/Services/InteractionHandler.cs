@@ -25,7 +25,11 @@ public class InteractionHandler(
         loader.AddAssemblies(typeof(GeneralCommands).Assembly);
 
         Client.InteractionCreated += HandleInteraction;
-
+        Client.GuildMemberUpdated += async (before, after) =>
+        {
+            await GeneralCommands.HandleRoleRemovedAsync(before, after, provider);
+        };
+        
         handler.InteractionExecuted += HandleInteractionExecute;
 
         await loader.RegisterCommandsToGuildAsync(configuration.GetValue<ulong>(DiscordConst.DevGuild));
