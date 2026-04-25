@@ -45,6 +45,7 @@ if (isDevelopment)
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ICoreContext>();
     db.Database.EnsureCreated();
+    await db.Database.MigrateAsync();
     
     var admin = await db.Staff.FirstOrDefaultAsync(x => x.Username == "admin");
 
