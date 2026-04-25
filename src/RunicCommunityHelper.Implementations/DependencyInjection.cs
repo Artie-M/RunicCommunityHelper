@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using RunicCommunityHelper.Common.Database;
@@ -21,11 +22,12 @@ public static class DependencyInjection
         return serviceCollection.AddSingleton<IInteractionLoader, InteractionLoader>();
     }
     
-    public static IServiceCollection AddDataStore(this IServiceCollection serviceCollection)
+    public static IServiceCollection AddDataStore(this IServiceCollection serviceCollection, IConfiguration configuration)
     {
         return serviceCollection.AddDbContext<ICoreContext, CoreContext>(x =>
         {
-            x.UseSqlite("Data Source=core.db;");
+            x.UseSqlite(configuration.GetConnectionString("Default") 
+                        ?? "Data Source=/app/data/core.db;");
         });
     }
 

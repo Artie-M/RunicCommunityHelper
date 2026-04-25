@@ -17,7 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton(cts);
 builder.Services.AddSerilog();
-builder.Services.AddDataStore();
+builder.Services.AddDataStore(builder.Configuration);
 builder.Services.AddDiscord(builder.Configuration);
 builder.Services.AddInteractionLoader();
 builder.Services.AddDiscordExceptionHandler();

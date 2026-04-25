@@ -11,5 +11,6 @@
       - GOOGLE_CREDENTIALS_PATH=/app/google-key.json
     volumes:
       - ./google-key.json:/app/google-key.json:ro
+      - ./data:/app/data
     ports:
       - "5024:8080"
