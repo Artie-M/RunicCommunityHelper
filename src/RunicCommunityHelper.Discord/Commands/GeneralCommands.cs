@@ -57,7 +57,7 @@ public class GeneralCommands : DiscordModuleBase
         await RespondWithModalAsync<EmailLinkModal>(DiscordConst.LinkEmailModal);
     }
 
-    [ComponentInteraction(DiscordConst.LinkEmailModal)]
+    [ModalInteraction(DiscordConst.LinkEmailModal)]
     private async Task ExecuteLinkEmailModalAsync(EmailLinkModal modal)
     {
         await DeferAsync(ephemeral: true);

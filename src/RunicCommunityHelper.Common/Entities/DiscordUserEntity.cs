@@ -8,7 +8,7 @@ public class DiscordUserEntity
 {
     public int Id { get; init; }
     
-    public ulong DiscordId { get; init; }
+    public ulong DiscordId { get; set; }
     
     [MaxLength(128)] public required string Email { get; set; }
 }
