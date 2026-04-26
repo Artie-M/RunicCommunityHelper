@@ -1,6 +1,6 @@
 using System.Security.Claims;
-using RunicCommunityHelper.Common.Services;
 using RunicCommunityHelper.Common.Database;
+using RunicCommunityHelper.Common.Services;
 
 namespace RunicCommunityHelper.EndpointManagers;
 
@@ -21,40 +21,46 @@ public class AuthEndpointManager
         app.MapPost("/api/auth/login", PostAuthAsync);
     }
 
-    private async Task PostAuthAsync(HttpRequest request)
+    private async Task PostAuthAsync(HttpContext httpContext)
     {
-        var context = request.HttpContext;
-
-        var loginData = await request.ReadFromJsonAsync<LoginDto>();
-        if (loginData == null)
+        var loginData = await httpContext.Request.ReadFromJsonAsync<LoginDto>();
+        if (loginData == null || string.IsNullOrEmpty(loginData.Username))
         {
-            context.Response.StatusCode = 400; // Bad Request
+            httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
             return;
         }
+        
+        httpContext.Response.ContentType = "application/json; charset=utf-8";
+        httpContext.Response.Headers.ContentLanguage = "ru-RU";
 
         using var scope = _app.Services.CreateScope();
         var validator = scope.ServiceProvider.GetRequiredService<IUserValidator>();
         var db = scope.ServiceProvider.GetRequiredService<ICoreContext>();
 
-        var user = await validator.ValidateUserAsync(db, loginData.Password, loginData.Username);
+        var user = await validator.ValidateUserAsync(db, loginData.Username, loginData.Password);
 
         if (user == null)
         {
-            context.Response.StatusCode = 401; // Unauthorized
-            await context.Response.WriteAsJsonAsync(new { error = "Неверные учетные данные" });
+            httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            await httpContext.Response.WriteAsJsonAsync(new { error = "Неверные учетные данные" });
             return;
         }
 
         var claims = new List<Claim>
         {
             new(ClaimTypes.Name, user.Username),
-            new(ClaimTypes.Role, user.Role),
+            new(ClaimTypes.Role, "Admin"),
             new("id", user.Id.ToString())
         };
 
+        if (user.Email != null)
+        {
+            claims.Add(new Claim(ClaimTypes.Email, user.Email));
+        }
+        
         var token = validator.GenerateSecurityToken(claims);
-        context.Response.StatusCode = 200;
-        await context.Response.WriteAsJsonAsync(new { token = token });
+        httpContext.Response.StatusCode = 200;
+        await httpContext.Response.WriteAsJsonAsync(new { token = token });
     }
 }
 

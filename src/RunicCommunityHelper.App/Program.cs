@@ -1,9 +1,9 @@
 using RunicCommunityHelper.Common.Services;
 using RunicCommunityHelper.Common.Database;
-using RunicCommunityHelper.EndpointManagers;
 using RunicCommunityHelper.Implementations;
 using Microsoft.EntityFrameworkCore;
 using RunicCommunityHelper.Discord;
+using RunicCommunityHelper.EndpointManagers;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -22,6 +22,7 @@ builder.Services.AddDiscord(builder.Configuration);
 builder.Services.AddInteractionLoader();
 builder.Services.AddDiscordExceptionHandler();
 builder.Services.AddJwtBearerAuth();
+builder.Services.AddGoogleDriveManager();
 
 var app = builder.Build();
 
@@ -31,12 +32,25 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 AuthEndpointManager.Singleton.RegisterEndpoints(app);
+DiscordUsersEndpointManager.Singleton.RegisterEndpoints(app);
+GoogleDocumentsEndpointManager.Singleton.RegisterEndpoints(app);
 
-app.MapGet("/", async (HttpContext context) =>
+/*app.MapGet("/", (HttpContext context) =>
+{
+    context.Response.Redirect("/dashboard");
+});
+
+app.MapGet("/login", async (HttpContext context) =>
 {
     context.Response.ContentType = "text/html; charset=utf-8";
-    await context.Response.WriteAsync("Hello World!");
+    await context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath, "login.html"));
 });
+
+app.MapGet("/dashboard", async (HttpContext context) =>
+{
+    context.Response.ContentType = "text/html; charset=utf-8";
+    await context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath, "dashboard.html"));
+});*/
 
 var isDevelopment = app.Environment.IsDevelopment();
 

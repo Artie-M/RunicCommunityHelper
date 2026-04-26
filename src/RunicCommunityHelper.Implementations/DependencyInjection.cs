@@ -52,4 +52,9 @@ public static class DependencyInjection
             });
         return serviceCollection;
     }
+
+    public static IServiceCollection AddGoogleDriveManager(this IServiceCollection serviceCollection)
+    {
+        return serviceCollection.AddSingleton<IGoogleDriveManager, GoogleDriveManager>();
+    }
 }

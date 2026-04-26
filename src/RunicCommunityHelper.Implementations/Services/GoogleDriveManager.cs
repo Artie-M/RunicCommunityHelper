@@ -26,7 +26,7 @@ public class GoogleDriveManager : IGoogleDriveManager
 
         foreach (var fileId in fileIds)
         {
-            var userPermission = await CheckPermission(service, userEmail, fileId);
+            var userPermission = await CheckPermission(service, fileId, userEmail);
             
             if (userPermission != null && userPermission.Role == "writer")
             {
@@ -43,7 +43,7 @@ public class GoogleDriveManager : IGoogleDriveManager
         var service = GetDriveService();
         foreach (var fileId in fileIds)
         {
-            var existingPermission = await CheckPermission(service, userEmail, fileId);
+            var existingPermission = await CheckPermission(service, fileId, userEmail);
 
             if (existingPermission != null)
             {
