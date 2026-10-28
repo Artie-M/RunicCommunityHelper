@@ -12,6 +12,11 @@ google-key.json
 *.user
 *.userosscache
 *.sln.docstates
+*.md
+!README.md
+
+# Hidden directories in the repository root (.idea, .vscode, ...)
+/.*/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
