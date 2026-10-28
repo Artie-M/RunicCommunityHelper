@@ -4,6 +4,13 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
+FROM node:22-alpine AS web
+WORKDIR /web
+COPY ["src/RunicCommunityHelper.Web/package.json", "src/RunicCommunityHelper.Web/package-lock.json", "./"]
+RUN npm ci --no-audit --no-fund
+COPY src/RunicCommunityHelper.Web/ .
+RUN npm run build
+
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
@@ -24,4 +31,5 @@ RUN dotnet publish "RunicCommunityHelper.App.csproj" -c $BUILD_CONFIGURATION -o 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY --from=web /web/dist ./wwwroot
 ENTRYPOINT ["dotnet", "RunicCommunityHelper.App.dll"]

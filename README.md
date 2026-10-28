@@ -21,6 +21,7 @@ Web-приложение и Discord-бот для управления дост�
 - **Discord-бот:** Discord.Net 3.19.1, Discord.Addons.Hosting 6.1.0, Fergun.Interactive 1.7.7
 - **Google API:** Google.Apis.Drive.v3 1.73.0
 - **Логирование:** Serilog 4.3.1
+- **Панель администратора:** React 18.3, React Router 6.28, TypeScript 5.6, Vite 5.4 (Node.js 22)
 - **Контейнеризация:** Docker, Docker Compose
 
 ## Структура
@@ -28,6 +29,7 @@ Web-приложение и Discord-бот для управления дост�
 ```
 src/
 ├── RunicCommunityHelper.App              # точка входа, REST API (EndpointManagers)
+├── RunicCommunityHelper.Web              # панель администратора
 ├── RunicCommunityHelper.Discord          # бот: команды, модальные окна, обработчик событий
 ├── RunicCommunityHelper.Implementations  # БД, Google Drive, JWT, обработка ошибок
 └── RunicCommunityHelper.Common           # сущности, интерфейсы сервисов, константы
@@ -84,21 +86,30 @@ docker compose up --build -d
 
 Приложение будет доступно на `http://localhost:5024`, база SQLite сохраняется в `./data/core.db`.
 
+## Панель администратора
+
+Откройте `http://localhost:5024` и войдите под учётной записью администратора (при первом запуске создаётся пользователь `admin` с паролем из `ADMIN_PASSWORD`). Сессия действует 30 минут.
+
+- **Документы** — какие роли Discord дают доступ к каким документам: добавление, изменение ID документа и ID роли, удаление. В поле ID документа можно вставить полную ссылку на документ.
+- **Пользователи** — список пользователей, привязавших почту, поиск и изменение почты.
+
+Изменения в панели меняют только записи в базе. Новый документ пользователи получат при следующем нажатии кнопки «Обновить доступ» в Discord; при удалении документа или смене почты в панели уже выданный доступ не отзывается.
+
 ## REST API
 
-Все эндпоинты, кроме входа, требуют заголовок `Authorization: Bearer <token>` с ролью `Admin`. Токен действует 30 минут.
+Все эндпоинты, кроме входа, требуют заголовок `Authorization: Bearer <token>` с ролью `Admin`. Токен действует 30 минут. Discord ID (`discordId`, `requiredRole`) передаются строками: они не помещаются в число JavaScript без потери точности (числа в запросах тоже принимаются).
 
 | Метод | Путь | Описание |
 |---|---|---|
 | `POST` | `/api/auth/login` | вход, тело `{ "username": "...", "password": "..." }`, ответ `{ "token": "..." }` |
 | `GET` | `/api/googledocuments` | список документов |
 | `GET` | `/api/googledocuments/{id}` | документ по ID |
-| `POST` | `/api/googledocuments` | добавить документ `{ "fileId": "...", "requiredRole": 123 }` |
+| `POST` | `/api/googledocuments` | добавить документ `{ "fileId": "...", "requiredRole": "936422104788791337" }` |
 | `PUT` | `/api/googledocuments/{id}` | изменить документ |
 | `DELETE` | `/api/googledocuments/{id}` | удалить документ |
 | `GET` | `/api/discordusers` | список пользователей с привязанной почтой |
 | `GET` | `/api/discordusers/{id}` | пользователь по ID |
-| `POST` | `/api/discordusers` | добавить пользователя `{ "discordId": 123, "email": "..." }` |
+| `POST` | `/api/discordusers` | добавить пользователя `{ "discordId": "283279185436000257", "email": "..." }` |
 | `PUT` | `/api/discordusers/{id}` | изменить пользователя |
 | `DELETE` | `/api/discordusers/{id}` | удалить пользователя |
 

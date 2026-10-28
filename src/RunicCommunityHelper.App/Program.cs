@@ -5,6 +5,7 @@ using RunicCommunityHelper.Implementations;
 using Microsoft.EntityFrameworkCore;
 using RunicCommunityHelper.Discord;
 using RunicCommunityHelper.EndpointManagers;
+using RunicCommunityHelper.Json;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -24,17 +25,27 @@ builder.Services.AddInteractionLoader();
 builder.Services.AddDiscordExceptionHandler();
 builder.Services.AddJwtBearerAuth();
 builder.Services.AddGoogleDriveManager();
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.Converters.Add(new UInt64StringJsonConverter()));
 
 var app = builder.Build();
 
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseHttpsRedirection();
+app.UseDefaultFiles();
 app.UseStaticFiles();
 
 AuthEndpointManager.Singleton.RegisterEndpoints(app);
 DiscordUsersEndpointManager.Singleton.RegisterEndpoints(app);
 GoogleDocumentsEndpointManager.Singleton.RegisterEndpoints(app);
+
+app.Map("/api/{**path}", context =>
+{
+    context.Response.StatusCode = StatusCodes.Status404NotFound;
+    return Task.CompletedTask;
+});
+app.MapFallbackToFile("index.html");
 
 var isDevelopment = app.Environment.IsDevelopment();
 
