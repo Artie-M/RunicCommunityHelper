@@ -9,7 +9,7 @@ namespace RunicCommunityHelper.Implementations.Services;
 
 public class GoogleDriveManager : IGoogleDriveManager
 {
-    private readonly string[] _scopes = { DriveService.Scope.DriveFile };
+    private readonly string[] _scopes = { DriveService.Scope.Drive };
     private readonly string _applicationName = "RunicCommunityHelper";
     private readonly string _jsonKeyFilePath = Environment.GetEnvironmentVariable("GOOGLE_CREDENTIALS_PATH") ?? "google-key.json";
     
@@ -43,11 +43,22 @@ public class GoogleDriveManager : IGoogleDriveManager
         var service = GetDriveService();
         foreach (var fileId in fileIds)
         {
-            var existingPermission = await CheckPermission(service, fileId, userEmail);
-
-            if (existingPermission != null)
+            try
             {
+                var existingPermission = await CheckPermission(service, fileId, userEmail);
+                if (existingPermission == null) continue;
+
+                if (existingPermission.Role == "owner")
+                {
+                    Log.Warning($"Пользователь {userEmail} является владельцем документа {fileId}, доступ не отозван");
+                    continue;
+                }
+
                 await RemoveUserFromDocument(service, existingPermission, userEmail, fileId);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Ошибка при проверке доступа у {userEmail} к файлу {fileId}: {ex.Message}");
             }
         }
     }
@@ -72,7 +83,8 @@ public class GoogleDriveManager : IGoogleDriveManager
         try
         {
             var request = service.Permissions.Create(newPermission, fileId);
-            request.SendNotificationEmail = true; 
+            request.SendNotificationEmail = true;
+            request.SupportsAllDrives = true;
             
             await request.ExecuteAsync();
             Log.Information($"Доступ успешно предоставлен пользователю: {userEmail}");
@@ -87,7 +99,10 @@ public class GoogleDriveManager : IGoogleDriveManager
     {
         try
         {
-            await service.Permissions.Delete(fileId, existingPermission.Id).ExecuteAsync();
+            var request = service.Permissions.Delete(fileId, existingPermission.Id);
+            request.SupportsAllDrives = true;
+
+            await request.ExecuteAsync();
             Log.Information($"Права доступа успешно отозваны у пользователя: {userEmail} для документа {fileId}");
         }
         catch (Exception ex)
@@ -100,6 +115,7 @@ public class GoogleDriveManager : IGoogleDriveManager
     {
         var listRequest = service.Permissions.List(fileId);
         listRequest.Fields = "permissions(id, emailAddress, role)";
+        listRequest.SupportsAllDrives = true;
         var existingPermissions = await listRequest.ExecuteAsync();
 
         return existingPermissions.Permissions?.FirstOrDefault(p => 

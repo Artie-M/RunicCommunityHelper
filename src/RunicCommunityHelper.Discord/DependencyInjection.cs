@@ -6,6 +6,7 @@ using Fergun.Interactive;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RunicCommunityHelper.Common.Const;
+using RunicCommunityHelper.Common.Services;
 using RunicCommunityHelper.Common.Utils;
 using RunicCommunityHelper.Discord.Services;
 
@@ -44,9 +45,17 @@ public static class DependencyInjection
 
         services.AddSingleton(new InteractiveConfig { DefaultTimeout = TimeSpan.FromMinutes(5) });
         services.AddSingleton<InteractiveService>();
-
         services.AddHostedService<InteractionHandler>();
 
+        services.AddRoleAccessService();
+        
         return services;
+    }
+    
+    private static IServiceCollection AddRoleAccessService(this IServiceCollection serviceCollection)
+    {
+        serviceCollection.AddSingleton<RoleAccessService>();
+        serviceCollection.AddSingleton<IRoleAccessService>(provider => provider.GetRequiredService<RoleAccessService>());
+        return serviceCollection.AddHostedService(provider => provider.GetRequiredService<RoleAccessService>());
     }
 }

@@ -64,55 +64,15 @@ public class GeneralCommands : DiscordModuleBase
         
         using var scope = _provider.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ICoreContext>();
-        await EnsureDiscordUserExist(db, Context.User.Id, modal.Email);
         var driveManager = scope.ServiceProvider.GetRequiredService<IGoogleDriveManager>();
+        await EnsureDiscordUserExist(db, driveManager, Context.User.Id, modal.Email);
         await UpdateDocsAccess(db, driveManager, (Context.User as IGuildUser)!, modal.Email);
         
         await FollowupAsync("Доступ обновлён!", ephemeral: true);
     }
 
-    public static async Task HandleRoleRemovedAsync(Cacheable<SocketGuildUser, ulong> cachedBefore, SocketGuildUser after, IServiceProvider provider)
-    {
-        var before = await cachedBefore.GetOrDownloadAsync();
-        if (before == null) return;
-
-        var currentRoleIds = after.Roles.Select(r => r.Id).ToList();
-        var removedRoles = before.Roles.Select(r => r.Id).Except(currentRoleIds).ToList();
-        if (!removedRoles.Any()) return;
-
-        using var scope = provider.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<ICoreContext>();
-        var driveManager = scope.ServiceProvider.GetRequiredService<IGoogleDriveManager>();
-
-        var discordUser = await db.DiscordUsers.FirstOrDefaultAsync(x => x.DiscordId == after.Id);
-        if (discordUser == null) return;
-
-        var documentsToCheck = await db.GoogleDocuments
-            .Where(doc => removedRoles.Contains(doc.RequiredRole))
-            .ToListAsync();
-
-        if (!documentsToCheck.Any()) return;
-        
-        var filesToRevoke = new List<string>();
-
-        foreach (var doc in documentsToCheck)
-        {
-            var hasAlternativeAccessRole = await db.GoogleDocuments
-                .AnyAsync(d => d.FileId == doc.FileId && currentRoleIds.Contains(d.RequiredRole));
-
-            if (!hasAlternativeAccessRole)
-            {
-                filesToRevoke.Add(doc.FileId);
-            }
-        }
-
-        if (filesToRevoke.Any())
-        {
-            await driveManager.RemoveUserAccessAsync(discordUser.Email, filesToRevoke.ToArray());
-        }
-    }
-    
-    private async Task<DiscordUserEntity> EnsureDiscordUserExist(ICoreContext db, ulong discordId, string email)
+    private async Task<DiscordUserEntity> EnsureDiscordUserExist(ICoreContext db, IGoogleDriveManager driveManager,
+        ulong discordId, string email)
     {
         var user = await db.DiscordUsers.FirstOrDefaultAsync(x => x.DiscordId == discordId);
 
@@ -128,11 +88,31 @@ public class GeneralCommands : DiscordModuleBase
         }
         else if (user.Email != email)
         {
+            var oldEmail = user.Email;
             user.Email = email;
             await db.SaveChangesAsync();
+
+            if (!string.Equals(oldEmail, email, StringComparison.OrdinalIgnoreCase))
+            {
+                await RevokeOldEmailAccess(db, driveManager, oldEmail);
+            }
         }
 
         return user;
+    }
+
+    private static async Task RevokeOldEmailAccess(ICoreContext db, IGoogleDriveManager driveManager, string oldEmail)
+    {
+        var isUsedByOtherUser = await db.DiscordUsers
+            .AnyAsync(x => x.Email.ToLower() == oldEmail.ToLower());
+        if (isUsedByOtherUser) return;
+
+        var fileIds = await db.GoogleDocuments
+            .Select(x => x.FileId)
+            .Distinct()
+            .ToArrayAsync();
+
+        await driveManager.RemoveUserAccessAsync(oldEmail, fileIds);
     }
 
     private async Task UpdateDocsAccess(ICoreContext db, IGoogleDriveManager driveManager, IGuildUser user, string email)
