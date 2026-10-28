@@ -37,7 +37,7 @@ public class AuthEndpointManager
         var validator = scope.ServiceProvider.GetRequiredService<IUserValidator>();
         var db = scope.ServiceProvider.GetRequiredService<ICoreContext>();
 
-        var user = await validator.ValidateUserAsync(db, loginData.Username, loginData.Password);
+        var user = await validator.ValidateUserAsync(db, loginData.Password, loginData.Username);
 
         if (user == null)
         {

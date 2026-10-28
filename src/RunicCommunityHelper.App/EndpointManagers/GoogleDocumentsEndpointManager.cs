@@ -39,7 +39,7 @@ public class GoogleDocumentsEndpointManager
     }
     
     [Authorize(Roles = "Admin")]
-    private async Task GetDocumentAsync(uint id, HttpContext httpContext)
+    private async Task GetDocumentAsync(int id, HttpContext httpContext)
     {
         using var scope = _app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ICoreContext>();
@@ -58,7 +58,7 @@ public class GoogleDocumentsEndpointManager
     }
     
     [Authorize(Roles = "Admin")] 
-    private async Task DeleteDocumentAsync(uint id, HttpContext httpContext)
+    private async Task DeleteDocumentAsync(int id, HttpContext httpContext)
     {
         using var scope = _app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ICoreContext>();
@@ -76,7 +76,7 @@ public class GoogleDocumentsEndpointManager
     }
 
     [Authorize(Roles = "Admin")] 
-    private async Task PutDocumentAsync(uint id, HttpContext httpContext)
+    private async Task PutDocumentAsync(int id, HttpContext httpContext)
     {
         using var scope = _app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ICoreContext>();

@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using RunicCommunityHelper.Common.Services;
 using RunicCommunityHelper.Common.Database;
 using RunicCommunityHelper.Common.Entities;
+using RunicCommunityHelper.Common.Utils;
 
 namespace RunicCommunityHelper.Implementations.Services;
 
@@ -14,7 +15,7 @@ public class UserValidator : IUserValidator
 {
     public const string Issuer = "RunicCommunityHelper";
     public const string Audience = "RunicCommunityHelperClient";
-    private readonly string _key = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "mysupersecret_secretsecretsecretkey!123";
+    private readonly string _key = EnvironmentSecrets.Get("JWT_SECRET") ?? "mysupersecret_secretsecretsecretkey!123";
     
     public SymmetricSecurityKey GetSymmetricSecurityKey()
     {

@@ -39,7 +39,7 @@ public class DiscordUsersEndpointManager
     }
     
     [Authorize(Roles = "Admin")]
-    private async Task GetDiscordUserAsync(uint id, HttpContext httpContext)
+    private async Task GetDiscordUserAsync(int id, HttpContext httpContext)
     {
         using var scope = _app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ICoreContext>();
@@ -58,7 +58,7 @@ public class DiscordUsersEndpointManager
     }
     
     [Authorize(Roles = "Admin")] 
-    private async Task DeleteDiscordUserAsync(uint id, HttpContext httpContext)
+    private async Task DeleteDiscordUserAsync(int id, HttpContext httpContext)
     {
         using var scope = _app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ICoreContext>();
@@ -76,7 +76,7 @@ public class DiscordUsersEndpointManager
     }
 
     [Authorize(Roles = "Admin")] 
-    private async Task PutDiscordUserAsync(uint id, HttpContext httpContext)
+    private async Task PutDiscordUserAsync(int id, HttpContext httpContext)
     {
         using var scope = _app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ICoreContext>();
