@@ -6,6 +6,7 @@ using Fergun.Interactive;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RunicCommunityHelper.Common.Const;
+using RunicCommunityHelper.Common.Utils;
 using RunicCommunityHelper.Discord.Services;
 
 namespace RunicCommunityHelper.Discord;
@@ -30,7 +31,7 @@ public static class DependencyInjection
                 GatewayIntents = GatewayIntents.All
             };
 
-            config.Token = Environment.GetEnvironmentVariable(DiscordConst.Token) ??
+            config.Token = EnvironmentSecrets.Get(DiscordConst.Token) ??
                            configuration.GetValue<string>("Discord:Token")!;
         });
 

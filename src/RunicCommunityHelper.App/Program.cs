@@ -1,5 +1,6 @@
 using RunicCommunityHelper.Common.Services;
 using RunicCommunityHelper.Common.Database;
+using RunicCommunityHelper.Common.Utils;
 using RunicCommunityHelper.Implementations;
 using Microsoft.EntityFrameworkCore;
 using RunicCommunityHelper.Discord;
@@ -35,30 +36,12 @@ AuthEndpointManager.Singleton.RegisterEndpoints(app);
 DiscordUsersEndpointManager.Singleton.RegisterEndpoints(app);
 GoogleDocumentsEndpointManager.Singleton.RegisterEndpoints(app);
 
-/*app.MapGet("/", (HttpContext context) =>
-{
-    context.Response.Redirect("/dashboard");
-});
-
-app.MapGet("/login", async (HttpContext context) =>
-{
-    context.Response.ContentType = "text/html; charset=utf-8";
-    await context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath, "login.html"));
-});
-
-app.MapGet("/dashboard", async (HttpContext context) =>
-{
-    context.Response.ContentType = "text/html; charset=utf-8";
-    await context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath, "dashboard.html"));
-});*/
-
 var isDevelopment = app.Environment.IsDevelopment();
 
 if (isDevelopment)
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ICoreContext>();
-    db.Database.EnsureCreated();
     await db.Database.MigrateAsync();
     
     var admin = await db.Staff.FirstOrDefaultAsync(x => x.Username == "admin");
@@ -67,7 +50,7 @@ if (isDevelopment)
     {
         var validator = scope.ServiceProvider.GetRequiredService<IUserValidator>();
         await validator.PostUserAsync(db,
-            Environment.GetEnvironmentVariable("ADMIN_PASSWORD") ?? "admin",
+            EnvironmentSecrets.Get("ADMIN_PASSWORD") ?? "admin",
             "admin",
             "Admin");
     }

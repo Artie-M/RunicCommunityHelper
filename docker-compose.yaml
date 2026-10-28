@@ -5,12 +5,26 @@
       dockerfile: src/RunicCommunityHelper.App/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - JWT_SECRET=${JWT_SECRET}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-      - DISCORD_TOKEN=${DISCORD_TOKEN}
-      - GOOGLE_CREDENTIALS_PATH=/app/google-key.json
+      - DISCORD_TOKEN_FILE=/run/secrets/discord_token
+      - JWT_SECRET_FILE=/run/secrets/jwt_secret
+      - ADMIN_PASSWORD_FILE=/run/secrets/admin_password
+      - GOOGLE_CREDENTIALS_PATH=/run/secrets/google_key
+    secrets:
+      - discord_token
+      - jwt_secret
+      - admin_password
+      - google_key
     volumes:
-      - ./google-key.json:/app/google-key.json:ro
       - ./data:/app/data
     ports:
       - "5024:8080"
+
+secrets:
+  discord_token:
+    environment: DISCORD_TOKEN
+  jwt_secret:
+    environment: JWT_SECRET
+  admin_password:
+    environment: ADMIN_PASSWORD
+  google_key:
+    file: ./google-key.json
